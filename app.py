@@ -1,19 +1,16 @@
 """Main FastAPI app with routers and dependency injection."""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exception_handlers import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from config import settings
-
 # Routers
 from routers.auth_router import router as auth_router
 from routers.presigned_router import router as presigned_router
 from routers.s3_router import router as s3_router
-
-from fastapi import Request
-from fastapi.responses import JSONResponse
-from fastapi.exception_handlers import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 app = FastAPI(
     title="Facet Backdoor API",

@@ -1,8 +1,10 @@
 """Auth endpoints router."""
 
 import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+
 from auth import authenticate_user, create_access_token
 from config import settings
 
