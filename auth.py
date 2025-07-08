@@ -1,7 +1,7 @@
 """Authentication logic and dependencies."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional
 
 from fastapi import Depends, HTTPException
