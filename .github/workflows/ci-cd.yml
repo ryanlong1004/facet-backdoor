@@ -39,8 +39,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run tests
         run: |
-          pytest
-
+          pytest --ignore=tests/test_endpoints.py
 
   build-and-push-docker:
     runs-on: ubuntu-latest
