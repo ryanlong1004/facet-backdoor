@@ -43,20 +43,22 @@ def authenticate_user(username: str, password: str) -> bool:
     logging.info(
         "Authentication attempt for user '%s': %s.",
         username,
-        "success" if is_authenticated else "failure"
+        "success" if is_authenticated else "failure",
     )
     return is_authenticated
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token."""
+    import datetime as dt
+
     to_encode = data.copy()
-    expire = datetime.utcnow() + (
+    expire = dt.datetime.now(dt.UTC) + (
         expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
     )
     to_encode.update({"exp": expire})
     token = jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.algorithm)
-    logging.info("Access token created for user: %s", data.get('sub'))
+    logging.info("Access token created for user: %s", data.get("sub"))
     return token
 
 

@@ -4,10 +4,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
+
 # Routers
 from routers.auth_router import router as auth_router
 from routers.presigned_router import router as presigned_router
 from routers.s3_router import router as s3_router
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from fastapi.exception_handlers import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 app = FastAPI(
     title="Facet Backdoor API",
@@ -23,6 +29,29 @@ app = FastAPI(
     ],
 )
 
+
+# Custom error handlers
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail, "error": True, "status_code": exc.status_code},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": exc.errors(),
+            "body": exc.body,
+            "error": True,
+            "status_code": 422,
+        },
+    )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
@@ -36,3 +65,10 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(presigned_router)
 app.include_router(s3_router)
+
+
+# Healthcheck endpoint
+@app.get("/healthz", tags=["health"])
+async def healthcheck():
+    """Healthcheck endpoint for readiness/liveness probes."""
+    return {"status": "ok"}
