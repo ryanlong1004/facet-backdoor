@@ -8,10 +8,12 @@ from fastapi.responses import JSONResponse
 from auth import get_current_user
 from dependencies import get_async_s3_client
 from models import PresignRequest
-from presigned import (async_generate_presigned_delete,
-                       async_generate_presigned_get,
-                       async_generate_presigned_post,
-                       async_generate_presigned_put)
+from presigned import (
+    async_generate_presigned_delete,
+    async_generate_presigned_get,
+    async_generate_presigned_post,
+    async_generate_presigned_put,
+)
 
 router = APIRouter(prefix="/presigned", tags=["presigned"])
 

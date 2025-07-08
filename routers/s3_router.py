@@ -38,9 +38,11 @@ async def list_bucket_objects(
                     {
                         "key": obj["Key"],
                         "size": obj["Size"],
-                        "last_modified": obj["LastModified"].isoformat()
-                        if hasattr(obj["LastModified"], "isoformat")
-                        else str(obj["LastModified"]),
+                        "last_modified": (
+                            obj["LastModified"].isoformat()
+                            if hasattr(obj["LastModified"], "isoformat")
+                            else str(obj["LastModified"])
+                        ),
                     }
                 )
         return {"objects": objects}
