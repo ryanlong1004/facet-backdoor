@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Jupyter and IPython
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+*.env
+.envrc
+.env.bak
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+*.log
+
+# Test output
+htmlcov/
+.coverage
+.tox/
+
+# Node/npm (if present)
+node_modules/
+
+# Misc
+*.sqlite3
+*.db
+*.mypy_cache/
+
+# Project-specific
+# Ignore the env file with secrets
+env
