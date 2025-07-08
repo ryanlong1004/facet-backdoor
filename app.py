@@ -1,7 +1,7 @@
 """Main FastAPI app with routers and dependency injection."""
 
 from fastapi import FastAPI, Request
-from fastapi.exception_handlers import RequestValidationError
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
