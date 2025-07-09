@@ -31,17 +31,11 @@ async def api_presigned_get(
         req.key,
         req.expiration,
     )
-    # Extract S3 credentials from headers
-    aws_access_key_id = request.headers.get("X-Wasabi-Access-Key-Id")
-    aws_secret_access_key = request.headers.get("X-Wasabi-Secret-Access-Key")
-    region_name = request.headers.get("X-Region")
-    endpoint_url = request.headers.get("X-Endpoint")
-    session_token = request.headers.get("X-Wasabi-Session-Token")
-    if not all([aws_access_key_id, aws_secret_access_key, region_name, endpoint_url]):
-        return JSONResponse(
-            status_code=400,
-            content={"detail": "Missing required Wasabi credential headers."},
-        )
+    # Extract and validate S3 credentials from headers
+    try:
+        client_kwargs = extract_s3_credentials(request.headers)
+    except ValueError as e:
+        return JSONResponse(status_code=400, content={"detail": str(e)})
     import boto3
 
     client_kwargs = dict(
