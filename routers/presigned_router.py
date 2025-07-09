@@ -20,9 +20,13 @@ async def api_presigned_get(
     request: Request,
 ) -> JSONResponse:
     """Generate a presigned GET URL for an S3 object (async)."""
+    sensitive_headers = {"X-Wasabi-Access-Key-Id", "X-Wasabi-Secret-Access-Key", "X-Wasabi-Session-Token"}
+    sanitized_headers = {
+        k: (v if k not in sensitive_headers else "[REDACTED]") for k, v in request.headers.items()
+    }
     logging.info(
         "Presigned GET: headers=%s, bucket=%s, key=%s, expiration=%s",
-        dict(request.headers),
+        sanitized_headers,
         req.bucket,
         req.key,
         req.expiration,
