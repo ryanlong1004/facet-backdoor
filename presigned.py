@@ -4,6 +4,7 @@ All functions raise HTTPException on error and log the exception.
 """
 
 import logging
+
 from fastapi import HTTPException
 
 

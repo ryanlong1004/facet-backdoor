@@ -1,18 +1,12 @@
 """Main FastAPI app with routers and dependency injection."""
 
 import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
-
-# Ensure logging is configured for console output
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-)
 
 from config import settings
 from routers.auth_router import router as auth_router
@@ -21,7 +15,11 @@ from routers.s3_router import router as s3_router
 from routers.s3_session_router import router as s3_session_router
 from routers.wasabi_router import router as wasabi_router
 
-# Routers
+# Ensure logging is configured for console output
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 app = FastAPI(

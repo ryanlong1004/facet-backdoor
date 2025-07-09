@@ -2,18 +2,14 @@
 
 import logging
 
-
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-
 from models import PresignRequest
-from presigned import (
-    async_generate_presigned_delete,
-    async_generate_presigned_get,
-    async_generate_presigned_post,
-    async_generate_presigned_put,
-)
+from presigned import (async_generate_presigned_delete,
+                       async_generate_presigned_get,
+                       async_generate_presigned_post,
+                       async_generate_presigned_put)
 
 router = APIRouter(prefix="/presigned", tags=["presigned"])
 

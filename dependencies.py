@@ -26,6 +26,7 @@ async def get_async_s3_client(
         )
     except Exception:
         import logging
+
         logging.exception("Failed to create aioboto3 S3 client")
         raise
     s3_client = await s3_client_cm.__aenter__()
