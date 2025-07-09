@@ -1,5 +1,6 @@
 from typing import Optional
 
+import logging
 import boto3
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -36,6 +37,8 @@ async def get_wasabi_sts_session(payload: WasabiSTSRequest):
     Obtain temporary session credentials from Wasabi STS using direct credentials.
     """
     try:
+        # Debug log the credentials being used (do NOT do this in production with real secrets)
+        logging.info("Requesting Wasabi STS session with access_key: %r, secret_key: %r", payload.access_key, payload.secret_key)
         sts_client = boto3.client(
             "sts",
             aws_access_key_id=payload.access_key,
@@ -47,6 +50,7 @@ async def get_wasabi_sts_session(payload: WasabiSTSRequest):
             DurationSeconds=payload.duration_seconds
         )
         credentials = response["Credentials"]
+        logging.info("STS session token received: AccessKeyId=%r, Expiration=%r", credentials["AccessKeyId"], credentials["Expiration"])
         return WasabiSTSCredentials(
             access_key_id=credentials["AccessKeyId"],
             secret_access_key=credentials["SecretAccessKey"],
@@ -54,6 +58,7 @@ async def get_wasabi_sts_session(payload: WasabiSTSRequest):
             expiration=str(credentials["Expiration"]),
         )
     except Exception as e:
+        logging.error("Failed to get Wasabi STS session: %s", str(e))
         raise HTTPException(
             status_code=400, detail=f"Failed to get Wasabi STS session: {str(e)}"
         )

@@ -23,9 +23,14 @@ async def api_presigned_get(
     request: Request,
 ) -> JSONResponse:
     """Generate a presigned GET URL for an S3 object (async)."""
-    sensitive_headers = {"X-Wasabi-Access-Key-Id", "X-Wasabi-Secret-Access-Key", "X-Wasabi-Session-Token"}
+    sensitive_headers = {
+        "X-Wasabi-Access-Key-Id",
+        "X-Wasabi-Secret-Access-Key",
+        "X-Wasabi-Session-Token",
+    }
     sanitized_headers = {
-        k: (v if k not in sensitive_headers else "[REDACTED]") for k, v in request.headers.items()
+        k: (v if k not in sensitive_headers else "[REDACTED]")
+        for k, v in request.headers.items()
     }
     logging.info(
         "Presigned GET: headers=%s, bucket=%s, key=%s, expiration=%s",
@@ -58,8 +63,11 @@ async def api_presigned_get(
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if creds.get("aws_session_token"):
-        client_kwargs["aws_session_token"] = creds["aws_session_token"]
+    # Only add session token if present and non-empty
+    session_token = creds.get("aws_session_token")
+    logging.info("Session token used for signing: %r", session_token)
+    if session_token is not None and session_token != "":
+        client_kwargs["aws_session_token"] = session_token
     s3_client = boto3.client("s3", **client_kwargs)
     url = await async_generate_presigned_get(
         s3_client, req.bucket, req.key, req.expiration
@@ -109,8 +117,10 @@ async def api_presigned_put(
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if creds.get("aws_session_token"):
-        client_kwargs["aws_session_token"] = creds["aws_session_token"]
+    session_token = creds.get("aws_session_token")
+    logging.info("Session token used for signing: %r", session_token)
+    if session_token is not None and session_token != "":
+        client_kwargs["aws_session_token"] = session_token
     s3_client = boto3.client("s3", **client_kwargs)
     url = await async_generate_presigned_put(
         s3_client, req.bucket, req.key, req.expiration
@@ -160,8 +170,10 @@ async def api_presigned_post(
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if creds.get("aws_session_token"):
-        client_kwargs["aws_session_token"] = creds["aws_session_token"]
+    session_token = creds.get("aws_session_token")
+    logging.info("Session token used for signing: %r", session_token)
+    if session_token is not None and session_token != "":
+        client_kwargs["aws_session_token"] = session_token
     s3_client = boto3.client("s3", **client_kwargs)
     post_data = await async_generate_presigned_post(
         s3_client, req.bucket, req.key, req.expiration
@@ -211,8 +223,10 @@ async def api_presigned_delete(
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if creds.get("aws_session_token"):
-        client_kwargs["aws_session_token"] = creds["aws_session_token"]
+    session_token = creds.get("aws_session_token")
+    logging.info("Session token used for signing: %r", session_token)
+    if session_token is not None and session_token != "":
+        client_kwargs["aws_session_token"] = session_token
     s3_client = boto3.client("s3", **client_kwargs)
     url = await async_generate_presigned_delete(
         s3_client, req.bucket, req.key, req.expiration
