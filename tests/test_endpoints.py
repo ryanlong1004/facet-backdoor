@@ -31,7 +31,11 @@ def test_presigned_get_unauth():
         json={"bucket": "fake", "key": "fake", "expiration": 60},
     )
     assert response.status_code == 400
-    assert "Missing required Wasabi credential headers" in response.text
+    # Accept either legacy or new error message
+    assert (
+        "Missing required Wasabi credential headers" in response.text
+        or "Missing required header: x-aws-access-key-id" in response.text
+    )
 
 
 # This endpoint is not present or not protected anymore, so we skip this test.

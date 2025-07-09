@@ -6,10 +6,13 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from models import PresignRequest
-from presigned import (async_generate_presigned_delete,
-                       async_generate_presigned_get,
-                       async_generate_presigned_post,
-                       async_generate_presigned_put)
+from presigned import (
+    async_generate_presigned_delete,
+    async_generate_presigned_get,
+    async_generate_presigned_post,
+    async_generate_presigned_put,
+    extract_s3_credentials,
+)
 
 router = APIRouter(prefix="/presigned", tags=["presigned"])
 
@@ -31,19 +34,32 @@ async def api_presigned_get(
         req.key,
         req.expiration,
     )
-    # Extract and validate S3 credentials from headers
-    try:
-        client_kwargs = extract_s3_credentials(request.headers)
-    except ValueError as e:
-        return JSONResponse(status_code=400, content={"detail": str(e)})
+    # Extract S3 credentials from headers using utility
+    import boto3
+
+    creds = extract_s3_credentials({k.lower(): v for k, v in request.headers.items()})
+    region_name = request.headers.get("X-Region")
+    endpoint_url = request.headers.get("X-Endpoint")
+    if not all(
+        [
+            creds.get("aws_access_key_id"),
+            creds.get("aws_secret_access_key"),
+            region_name,
+            endpoint_url,
+        ]
+    ):
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Missing required Wasabi credential headers."},
+        )
     client_kwargs = dict(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
+        aws_access_key_id=creds["aws_access_key_id"],
+        aws_secret_access_key=creds["aws_secret_access_key"],
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if session_token:
-        client_kwargs["aws_session_token"] = session_token
+    if creds.get("aws_session_token"):
+        client_kwargs["aws_session_token"] = creds["aws_session_token"]
     s3_client = boto3.client("s3", **client_kwargs)
     url = await async_generate_presigned_get(
         s3_client, req.bucket, req.key, req.expiration
@@ -70,26 +86,31 @@ async def api_presigned_put(
         req.key,
         req.expiration,
     )
-    aws_access_key_id = request.headers.get("X-Wasabi-Access-Key-Id")
-    aws_secret_access_key = request.headers.get("X-Wasabi-Secret-Access-Key")
+    import boto3
+
+    creds = extract_s3_credentials({k.lower(): v for k, v in request.headers.items()})
     region_name = request.headers.get("X-Region")
     endpoint_url = request.headers.get("X-Endpoint")
-    session_token = request.headers.get("X-Wasabi-Session-Token")
-    if not all([aws_access_key_id, aws_secret_access_key, region_name, endpoint_url]):
+    if not all(
+        [
+            creds.get("aws_access_key_id"),
+            creds.get("aws_secret_access_key"),
+            region_name,
+            endpoint_url,
+        ]
+    ):
         return JSONResponse(
             status_code=400,
             content={"detail": "Missing required Wasabi credential headers."},
         )
-    import boto3
-
     client_kwargs = dict(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
+        aws_access_key_id=creds["aws_access_key_id"],
+        aws_secret_access_key=creds["aws_secret_access_key"],
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if session_token:
-        client_kwargs["aws_session_token"] = session_token
+    if creds.get("aws_session_token"):
+        client_kwargs["aws_session_token"] = creds["aws_session_token"]
     s3_client = boto3.client("s3", **client_kwargs)
     url = await async_generate_presigned_put(
         s3_client, req.bucket, req.key, req.expiration
@@ -116,26 +137,31 @@ async def api_presigned_post(
         req.key,
         req.expiration,
     )
-    aws_access_key_id = request.headers.get("X-Wasabi-Access-Key-Id")
-    aws_secret_access_key = request.headers.get("X-Wasabi-Secret-Access-Key")
+    import boto3
+
+    creds = extract_s3_credentials({k.lower(): v for k, v in request.headers.items()})
     region_name = request.headers.get("X-Region")
     endpoint_url = request.headers.get("X-Endpoint")
-    session_token = request.headers.get("X-Wasabi-Session-Token")
-    if not all([aws_access_key_id, aws_secret_access_key, region_name, endpoint_url]):
+    if not all(
+        [
+            creds.get("aws_access_key_id"),
+            creds.get("aws_secret_access_key"),
+            region_name,
+            endpoint_url,
+        ]
+    ):
         return JSONResponse(
             status_code=400,
             content={"detail": "Missing required Wasabi credential headers."},
         )
-    import boto3
-
     client_kwargs = dict(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
+        aws_access_key_id=creds["aws_access_key_id"],
+        aws_secret_access_key=creds["aws_secret_access_key"],
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if session_token:
-        client_kwargs["aws_session_token"] = session_token
+    if creds.get("aws_session_token"):
+        client_kwargs["aws_session_token"] = creds["aws_session_token"]
     s3_client = boto3.client("s3", **client_kwargs)
     post_data = await async_generate_presigned_post(
         s3_client, req.bucket, req.key, req.expiration
@@ -162,26 +188,31 @@ async def api_presigned_delete(
         req.key,
         req.expiration,
     )
-    aws_access_key_id = request.headers.get("X-Wasabi-Access-Key-Id")
-    aws_secret_access_key = request.headers.get("X-Wasabi-Secret-Access-Key")
+    import boto3
+
+    creds = extract_s3_credentials({k.lower(): v for k, v in request.headers.items()})
     region_name = request.headers.get("X-Region")
     endpoint_url = request.headers.get("X-Endpoint")
-    session_token = request.headers.get("X-Wasabi-Session-Token")
-    if not all([aws_access_key_id, aws_secret_access_key, region_name, endpoint_url]):
+    if not all(
+        [
+            creds.get("aws_access_key_id"),
+            creds.get("aws_secret_access_key"),
+            region_name,
+            endpoint_url,
+        ]
+    ):
         return JSONResponse(
             status_code=400,
             content={"detail": "Missing required Wasabi credential headers."},
         )
-    import boto3
-
     client_kwargs = dict(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
+        aws_access_key_id=creds["aws_access_key_id"],
+        aws_secret_access_key=creds["aws_secret_access_key"],
         region_name=region_name,
         endpoint_url=endpoint_url,
     )
-    if session_token:
-        client_kwargs["aws_session_token"] = session_token
+    if creds.get("aws_session_token"):
+        client_kwargs["aws_session_token"] = creds["aws_session_token"]
     s3_client = boto3.client("s3", **client_kwargs)
     url = await async_generate_presigned_delete(
         s3_client, req.bucket, req.key, req.expiration

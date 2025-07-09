@@ -8,6 +8,32 @@ import logging
 from fastapi import HTTPException
 
 
+def extract_s3_credentials(headers):
+    """
+    Extract S3/Wasabi credentials from request headers.
+    Returns a dict with keys: aws_access_key_id, aws_secret_access_key, aws_session_token (optional).
+    Raises HTTPException(400) if required headers are missing.
+    """
+    required_headers = [
+        "x-aws-access-key-id",
+        "x-aws-secret-access-key",
+    ]
+    creds = {}
+    for h in required_headers:
+        v = headers.get(h)
+        if not v:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Missing required header: {h}",
+            )
+        creds[h.replace("x-aws-", "aws_").replace("-", "_")] = v
+    # Session token is optional
+    session_token = headers.get("x-aws-session-token")
+    if session_token:
+        creds["aws_session_token"] = session_token
+    return creds
+
+
 async def async_generate_presigned_get(
     s3_client, bucket_name, object_key, expiration=3600
 ):
