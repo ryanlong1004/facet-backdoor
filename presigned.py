@@ -4,7 +4,6 @@ All functions raise HTTPException on error and log the exception.
 """
 
 import logging
-
 from fastapi import HTTPException
 
 
@@ -13,7 +12,7 @@ async def async_generate_presigned_get(
 ):
     """Async: Generate a presigned GET URL for an S3 object."""
     try:
-        return await s3_client.generate_presigned_url(
+        return s3_client.generate_presigned_url(
             "get_object",
             Params={"Bucket": bucket_name, "Key": object_key},
             ExpiresIn=expiration,
@@ -30,7 +29,7 @@ async def async_generate_presigned_put(
 ):
     """Async: Generate a presigned PUT URL for an S3 object."""
     try:
-        return await s3_client.generate_presigned_url(
+        return s3_client.generate_presigned_url(
             "put_object",
             Params={"Bucket": bucket_name, "Key": object_key},
             ExpiresIn=expiration,
@@ -47,7 +46,7 @@ async def async_generate_presigned_post(
 ):
     """Async: Generate a presigned POST policy for an S3 object."""
     try:
-        return await s3_client.generate_presigned_post(
+        return s3_client.generate_presigned_post(
             Bucket=bucket_name,
             Key=object_key,
             ExpiresIn=expiration,
@@ -64,7 +63,7 @@ async def async_generate_presigned_delete(
 ):
     """Async: Generate a presigned DELETE URL for an S3 object."""
     try:
-        return await s3_client.generate_presigned_url(
+        return s3_client.generate_presigned_url(
             "delete_object",
             Params={"Bucket": bucket_name, "Key": object_key},
             ExpiresIn=expiration,

@@ -1,1 +1,1 @@
-uvicorn app:app --reload
+uvicorn app:app --reload --port 9650
