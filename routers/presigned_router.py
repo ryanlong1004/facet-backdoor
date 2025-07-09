@@ -36,8 +36,6 @@ async def api_presigned_get(
         client_kwargs = extract_s3_credentials(request.headers)
     except ValueError as e:
         return JSONResponse(status_code=400, content={"detail": str(e)})
-    import boto3
-
     client_kwargs = dict(
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
