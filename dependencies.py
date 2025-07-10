@@ -5,19 +5,26 @@ import aioboto3
 from config import settings
 
 
-async def get_async_s3_client() -> AsyncGenerator[Any, None]:
-    """Async dependency to provide a configured aioboto3 S3 client."""
+async def get_async_s3_client(
+    endpoint_url: str,
+    aws_access_key_id: str,
+    aws_secret_access_key: str,
+    region_name: str,
+) -> AsyncGenerator[Any, None]:
+    """
+    Async dependency to provide a configured aioboto3 S3 client.
+    All connection parameters must be passed explicitly.
+    """
     session = aioboto3.Session()
     try:
         s3_client_cm = session.client(
             "s3",
-            endpoint_url=settings.wasabi_endpoint,
-            aws_access_key_id=settings.vite_access_key,
-            aws_secret_access_key=settings.vite_secret_key,
-            region_name=settings.aws_region,
+            endpoint_url=endpoint_url,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            region_name=region_name,
         )
     except Exception:
-        # Log and raise for misconfiguration
         import logging
 
         logging.exception("Failed to create aioboto3 S3 client")

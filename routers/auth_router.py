@@ -2,29 +2,28 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
-
-from auth import authenticate_user, create_access_token
-from config import settings
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/token", tags=["auth"])
 
 
+class S3SessionLoginRequest(BaseModel):
+    aws_access_key_id: str = Field(..., description="AWS/Wasabi access key")
+    aws_secret_access_key: str = Field(..., description="AWS/Wasabi secret key")
+    region_name: str = Field(..., description="AWS region name")
+    endpoint_url: str = Field(..., description="S3 endpoint URL (e.g., Wasabi)")
+
+
 @router.post("/login", response_model=dict)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
-    """Authenticate user and return JWT access token. Uses client_id and client_secret from settings."""
-    client_id = getattr(settings, "vite_secret_key", None)
-    client_secret = getattr(settings, "vite_access_key", None)
-    if not client_id or not client_secret:
-        logging.error("Server misconfiguration: client_id or client_secret missing.")
-        raise HTTPException(
-            status_code=500,
-            detail="Server misconfiguration: client_id or client_secret missing.",
-        )
-    if not authenticate_user(form_data.username, form_data.password):
-        logging.warning("Failed login for user: %s", form_data.username)
-        raise HTTPException(status_code=401, detail="Incorrect username or password")
-    access_token = create_access_token(data={"sub": form_data.username})
-    logging.info("User %s authenticated successfully.", form_data.username)
-    return {"access_token": access_token, "token_type": "bearer"}
+async def login(payload: S3SessionLoginRequest) -> dict:
+    """
+    Accept S3 session parameters and return them directly. No authentication or token is issued.
+    """
+    logging.info("Authorization removed: returning S3 session parameters directly.")
+    return {
+        "aws_access_key_id": payload.aws_access_key_id,
+        "aws_secret_access_key": payload.aws_secret_access_key,
+        "region_name": payload.region_name,
+        "endpoint_url": payload.endpoint_url,
+    }
