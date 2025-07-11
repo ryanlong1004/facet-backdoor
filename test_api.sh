@@ -1,9 +1,9 @@
+#!/bin/bash
 # Warn if using placeholder credentials
 if [[ "$AWS_ACCESS_KEY_ID" == "YOUR_ACCESS_KEY" || "$AWS_SECRET_ACCESS_KEY" == "YOUR_SECRET_KEY" || "$AWS_SESSION_TOKEN" == "YOUR_SESSION_TOKEN" ]]; then
   echo "[ERROR] You must set valid AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN before running this test."
   exit 2
 fi
-#!/bin/bash
 # test_api.sh - Test FastAPI S3 presigned GET URL endpoint
 
 
