@@ -53,7 +53,7 @@ echo "Testing presigned PUT URL (uploading this script as test file)..."
 curl -v -X PUT -T "$0" "$PUT_URL"
 
 
-# 1. Request presigned GET URL
+# 4. Request presigned GET URL
 echo "Requesting presigned GET URL..."
 URL=$(curl -s -X POST "$API_URL/presigned/get" \
   -H "x-aws-access-key-id: $AWS_ACCESS_KEY_ID" \
