@@ -2,17 +2,15 @@
 
 import logging
 
+import boto3
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from models import PresignRequest
-from presigned import (
-    async_generate_presigned_delete,
-    async_generate_presigned_get,
-    async_generate_presigned_post,
-    async_generate_presigned_put,
-    extract_s3_credentials,
-)
+from presigned import (async_generate_presigned_delete,
+                       async_generate_presigned_get,
+                       async_generate_presigned_post,
+                       async_generate_presigned_put, extract_s3_credentials)
 
 router = APIRouter(prefix="/presigned", tags=["presigned"])
 
@@ -147,7 +145,6 @@ async def api_presigned_post(
         req.key,
         req.expiration,
     )
-    import boto3
 
     creds = extract_s3_credentials({k.lower(): v for k, v in request.headers.items()})
     region_name = request.headers.get("X-Region")
@@ -178,6 +175,11 @@ async def api_presigned_post(
     post_data = await async_generate_presigned_post(
         s3_client, req.bucket, req.key, req.expiration
     )
+    # Patch: ensure session token field is correct case for S3/Wasabi
+    if "fields" in post_data and "x-amz-security-token" in post_data["fields"]:
+        post_data["fields"]["X-Amz-Security-Token"] = post_data["fields"].pop(
+            "x-amz-security-token"
+        )
     logging.info(
         "Presigned POST policy generated: bucket=%s, key=%s, post_data_keys=%s",
         req.bucket,
